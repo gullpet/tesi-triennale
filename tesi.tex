@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper,openright,twoside]{report}
+
+\usepackage[italian]{babel}
+\usepackage{newlfont}
+\usepackage{parskip}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\textwidth=450pt \oddsidemargin=0pt
+
+% Direttive fancyhdr, si può fare riferimento al layout:
+% {lhead}   {chead}   {rhead}
+%        <Page content>
+% {lfoot}   {cfoot}   {rfoot}
+
+\pagestyle{fancy}\addtolength{\headwidth}{20pt}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection \ #1}{}}
+\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+\cfoot{}
+
+\linespread{1.2}
+
+\begin{document}
+
+%frontespizio
+\input{./frontespizio.tex}
+\newpage
+\clearpage{\pagestyle{empty}\cleardoublepage}
+
+\pagenumbering{roman} %numerazione romana per le pagine di prefazione
+
+
+\chapter*{Introduzione}
+\addcontentsline{toc}{chapter}{Introduzione}
+\rhead[\fancyplain{}{\bfseries
+INTRODUZIONE}]{\fancyplain{}{\bfseries\thepage}}
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries
+INTRODUZIONE}}
+
+Il monitoraggio costante della velocità di fiumi e correnti d'acqua può assumere notevole importanza sia nello studio di 
+fenomeni idrologici puramente naturali, sia nella progettazione di opere ingegneristiche strettamente legate ad un 
+particolare flusso d'acqua. Ad esempio, può aiutare ad analizzare e rilevare fenomeni come le inondazioni (specie gli 
+avvenimenti improvvisi, che destano particolare attenzione), così come anche il trasporto di sedimenti o 
+l'erosione delle rocce.
+
+Molte delle tecniche tradizionali utilizzate per l'osservazione di un flusso idrico, tuttavia, non garantiscono 
+grande efficienza e presentano costi elevati: spesso è richiesta la presenza di personale specializzato per la 
+manutenzione di dispositivi complessi. *citazione a paper*\\ %citazione a paper remote sensing
+Una soluzione che preveda invece l'installazione di apparecchi ottici, e basi quindi il monitoraggio sull'elaborazione di
+immagini, può consentire di abbattere notevolmente i costi e di distribuire il sistema di osservazione ottenendo quindi 
+maggiore resistenza ai guasti.%inserire immagine di esempio applicazione OTV.
+
+\textit{\underline{immagine esempio applicazione OTV}}
+
+È proprio questo un caso di utilizzo di \textbf{OTV} (\textit{Optical Tracking Velocimetry}), una tecnica che fa uso di 
+particolari algoritmi di computer vision (in particolare l'algoritmo di Lucas-Kanade, utilizzato per la stima del flusso 
+ottico) per tracciare le traiettorie e le velocità del flusso d'acqua a partire da una serie di immagini. 
+Il tracciamento viene svolto grazie al riconoscimento di particelle quali detriti e altri residui e al confronto di fotogrammi 
+consecutivi.
+
+Il metodo OTV è pensato per essere applicato a dispositivi di elaborazione a basso costo e di dimensioni contenute: questi
+sarebbero posizionati lungo corsi d'acqua in aree geografiche remote. I dati poi raccolti da questi dispositivi potranno essere
+spediti (tramite meccanismi semplici come l'invio di SMS) ad un sistema di raccolta dati centralizzato.
+Va da sé dunque che l'ottimizzazione dei consumi energetici dei dispositivi costituisca un punto cruciale per la 
+realizzabilità di un tale sistema di monitoraggio. Questo tema verrà preso in considerazione e rappresenta uno degli argomenti
+principali dell'elaborato.\textit{\underline{Parlare dell'implementazione su Raspberry e come è nata l'idea di Android}}.\\
+
+
+Nei prossimi capitoli si procede a descrivere la realizzazione di un'applicazione per smartphone Android che adatti il codice
+sorgente già disponibile di OTV (\textit{link github}) e i risultati in termini di prestazioni e consumi energetici che ne sono conseguiti.
+
+
+
+
+\clearpage{\pagestyle{empty}\cleardoublepage}
+
+\tableofcontents
+\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries
+INDICE}}
+\clearpage{\pagestyle{empty}\cleardoublepage}
+
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+\pagenumbering{arabic} %numerazione araba per il contenuto effettivo
+
+%++++++++++++
+
+\chapter{Utilizzo di OTV}
+\section{Prima sezione}
+
+
+
+
+\clearpage{\pagestyle{empty}\cleardoublepage}
+
+%===========
+
+%\chapter{Processo di sviluppo}
+%\section{Prima sezione}
+
+
+
+
+%\clearpage{\pagestyle{empty}\cleardoublepage}
+
+%===========
+
+%\chapter{Testing e misurazioni}
+%\section{Prima sezione}
+
+
+
+
+%\clearpage{\pagestyle{empty}\cleardoublepage}
+
+%===========
+
+%\chapter*{Conclusioni}
+
+
+
+
+%\clearpage{\pagestyle{empty}\cleardoublepage}
+
+
+% --------------- Fine contenuto, inizio bibliografia ---------------
+
+\begin{thebibliography}{90}             %crea l'ambiente bibliografia
+
+    \rhead[\fancyplain{}{\bfseries \leftmark}]{\fancyplain{}{\bfseries
+    \thepage}}
+    \addcontentsline{toc}{chapter}{Bibliografia}
+
+    \bibitem{K1} .
+    \bibitem{K2} Secondo oggetto bibliografia.
+    \bibitem{K3} Terzo oggetto bibliografia.
+    \bibitem{K4} Quarto oggetto bibliografia.
+
+\end{thebibliography}
+
+\end{document}
