@@ -4,4 +4,6 @@
 *.log
 *.out
 *.toc
+*.bbl
+*.blg
 ex_tesi.*
