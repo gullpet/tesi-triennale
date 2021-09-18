@@ -1,0 +1,46 @@
+\chapter{OTV}
+\section{Contesto di utilizzo}
+
+Come già brevemente descritto, OTV prevede un deployment su dispositivi di dimensioni ridotte e autosufficienti dal punto di
+vista energetico. In particolare, la configurazione testata su Raspberry introduceva i seguenti componenti:
+\begin{itemize}
+    \item Raspberry Pi 3B/4 per l'elaborazione
+    \item Panello solare 6 W (PiJuice Solar Panel) per sostenere i consumi energetici
+    \item Batteria esterna (PiJuice Hat) per fornire alimentazione
+\end{itemize}
+\cite{app11157027} Una simile configurazione verrebbe usata con smartphone, salvo ovviamente l'utilizzo di una batteria 
+aggiuntiva.
+
+\underline{\emph{*Immagine applicazione OTV 2 (quella con lo sketch del fiume usata nel paper nuovo)*}}
+
+\section{Ciclo di funzionamento}
+Il dispositivo così composto, una volta accuratamente posizionato ed avviato, dovrebbe eseguire \emph{quattro} misurazioni 
+della velocità dell'acqua ogni ora, risultando quindi a regime in un ciclo di funzionamento periodico della durata di 15 minuti.
+
+Sebbene la misurazione mediante l'algoritmo OTV sia svolta sul momento, non viene effettuata sulle immagini direttamente ricevute
+e lette in input dalla telecamera: il video acquisito necessita di una fase preliminare che prepari le immagini per essere elaborate.
+Questo viene fatto, tra le altre cose, per consentire di scegliere un settaggio particolare (ad esempio, selezionare una 
+risoluzione diversa rispetto al video originale), utile successivamente al fine di ottimizzare l'elaborazione.
+
+Il ciclo di funzionamento si articola quindi in questo modo:
+\begin{enumerate}
+    \item Fase di \textbf{acquisizione}: le immagini vengono acquisite dalla telecamera. Questa fase ha una durata fissa e dipende
+    dalla lunghezza del video che si vuole analizzare: tipicamente 20 secondi.
+    \item Fase di \textbf{estrazione} dei frame: a partire dal video acquisito, si estraggono i fotogrammi che lo compongono a seconda
+    della configurazione scelta, in particolare è possibile specificare la risoluzione desiderata tra:
+    \begin{itemize}
+        \item Full Resolution (\textbf{F}): Risoluzione originale
+        \item Half Resolution (\textbf{H}): Risoluzione dimezzata
+        \item Quarter Resolution (\textbf{Q}): Risoluzione 1/4 dell'originale
+    \end{itemize}
+    \item Fase di \textbf{elaborazione} (OTV): a questo punto le immagini estratte vengono effettivamente elaborate utilizzando
+    OTV. Questa fase è cruciale dal punto di vista dei consumi in quanto è quella che può variare maggiormente a seconda della
+    configurazione usata e delle ottimizzazioni implementate. È bene quindi analizzarla di conseguenza.
+    \item Fase di \textbf{idle}: una volta conclusa l'elaborazione (ed eventualmente spediti i dati rilevati) segue un periodo di stand-by,
+    in cui si attende il tempo necessario prima della prossima rilevazione. Anche questa fase è molto importante per determinare
+    i consumi energetici del processo: se il dispositivo dovesse disporre di una modalità di risparmio energetico, 
+    l'energia utilizzata potrebbe diminuire drasticamente.
+\end{enumerate}
+
+
+\clearpage{\pagestyle{empty}\cleardoublepage}
