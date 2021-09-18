@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper,openright,twoside]{report}
+\documentclass[12pt,a4paper,openright]{report}
 
 \usepackage[italian]{babel}
 \usepackage{newlfont}
@@ -10,7 +10,7 @@
 \usepackage{babelbib}
 
 %serve solo per il frontespizio
-\textwidth=455pt %\oddsidemargin=0pt
+\textwidth=460pt \oddsidemargin=0pt
 
 % Direttive fancyhdr, si può fare riferimento al layout:
 % {lhead}   {chead}   {rhead}
@@ -39,7 +39,8 @@
 %il textwidth=455pt serve per il frontespizio, è troppo grande per il testo
 \newgeometry{textwidth=426pt}
 
-\input{./introduzione.tex}
+\shipout\null
+\input{./capitoli/introduzione.tex}
 
 \tableofcontents
 %\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
@@ -54,7 +55,7 @@
 \lhead{\leftmark}
 \rhead{\thepage}
 
-\input{./capitolo1-otv.tex}
+\input{./capitoli/capitolo1-otv.tex}
 
 %===========
 

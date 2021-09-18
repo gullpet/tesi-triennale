@@ -42,5 +42,38 @@ Il ciclo di funzionamento si articola quindi in questo modo:
     l'energia utilizzata potrebbe diminuire drasticamente.
 \end{enumerate}
 
+Le fasi su cui è possibile effettivamente lavorare per ottenere risultati migliori sono quelle di elaborazione (in modo particolare)
+e di idle.
+
+\section{Ottimizzazioni}
+
+Le ottimizzazioni applicabili ad OTV analizzate in \cite{rs12122047} consistono in una serie di tecniche e meccanismi che
+possano contribuire ad aumentare l'efficienza energetica del sistema. %e in generale ad abbassarne i consumi. 
+Tra queste, possiamo distinguere quelle legate al \textbf{software} e quelle invece a livello \textbf{hardware} 
+(ad esempio, l'utilizzo di istruzioni particolari).
+
+Le ottimizzazioni software consistono essenzialmente nella configurazione del dispositivo in modo ad esempio
+da disattivare le opzioni software che risultino superflue (Wi-Fi, Bluetooth ecc.). Si parla di ottimizzazioni derivanti dal
+sistema operativo utilizzato e dunque dipendenti dal dispositivo in questione. Si vedranno ottimizzazioni di questo tipo
+esclusive al sistema Android.
+
+\subsection{Ottimizzazioni hardware}
+
+Nel caso delle ottimizzazioni hardware, si parla di particolari metodi che introducono differenti modelli di esecuzione
+a livello di processore, facendo leva specialmente sulla parallelizzazione delle istruzioni. Questo, oltre agli ovvi vantaggi
+in termini di performance, può portare ad una maggiore efficienza in termini di consumi.
+Si delineano tre possibilità principali, eventualmente sovrapponibili, focalizzate su aspetti e modalità diverse di 
+parallelizzazione:
+\begin{itemize}
+    \item Esecuzione multi-core mediante \textbf{OpenMP} o \textbf{TBB}: viene sfruttata l'architettura a più core per
+    ottenere il più tipico livello di parallelismo. 
+    \item Esecuzione di istruzioni \textbf{SIMD} tramite \textbf{NEON}
+    \item Esecuzione su \textbf{GPU} mediante la libreria \textbf{OpenCL}
+\end{itemize}
+
+\subsubsection{OpenMP e TBB}
+
+
+
 
 \clearpage{\pagestyle{empty}\cleardoublepage}
