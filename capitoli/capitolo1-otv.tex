@@ -45,6 +45,14 @@ Il ciclo di funzionamento si articola quindi in questo modo:
 Le fasi su cui è possibile effettivamente lavorare per ottenere risultati migliori sono quelle di elaborazione (in modo particolare)
 e di idle.
 
+
+Prima di introdurre i vari livelli di ottimizzazione, va intanto fatto notare che la specifica implementazione di OTV presa in
+caso è basata sulla libreria open-source di computer vision \textbf{OpenCV}.\\
+OpenCV fornisce un framework per la creazione di applicazioni legate alla computer vision e implementa una vasta gamma di
+algoritmi, tra cui l'algoritmo di Lucas-Kanade utilizzato da OTV e precedentemente descritto.\\
+L'utilizzo di OpenCV prescrive una serie di passaggi di installazione che variano in base all'ambiente di sviluppo e che
+--- nel caso specifico di Android --- verranno analizzati nel successivo capitolo.
+
 \section{Ottimizzazioni}
 
 Le ottimizzazioni applicabili ad OTV analizzate in \cite{rs12122047} consistono in una serie di tecniche e meccanismi che
@@ -65,15 +73,41 @@ in termini di performance, può portare ad una maggiore efficienza in termini di
 Si delineano tre possibilità principali, eventualmente sovrapponibili, focalizzate su aspetti e modalità diverse di 
 parallelizzazione:
 \begin{itemize}
-    \item Esecuzione multi-core mediante \textbf{OpenMP} o \textbf{TBB}: viene sfruttata l'architettura a più core per
-    ottenere il più tipico livello di parallelismo. 
+    \item Esecuzione multi-core mediante \textbf{OpenMP} o \textbf{TBB}. 
     \item Esecuzione di istruzioni \textbf{SIMD} tramite \textbf{NEON}
     \item Esecuzione su \textbf{GPU} mediante la libreria \textbf{OpenCL}
 \end{itemize}
 
 \subsubsection{OpenMP e TBB}
 
+OpenMP e TBB sono due librerie open-source che in fase di sperimentazione sono state utilizzate per testare il parallelismo
+\emph{thread-level} in modo da sfruttare i multipli core disponibili nelle moderne CPU. Le due librerie --- poiché
+forniscono lo stesso tipo di funzionalità --- sono da utilizzare in modo mutuamente esclusivo. La scelta della 
+libreria da utilizzare cadrà dunque su quella che garantisca le migliori prestazioni.
 
+\subsubsection{SIMD}
 
+SIMD (\textit{Single Instruction Multiple Data}) è una classe di istruzioni che consente di ottenere parallelismo su un
+singolo core. Il modello prevede l'esecuzione della stessa operazione su una molteplicità di dati mediante l'utilizzo di una
+singola istruzione. All'interno di un'istruzione vengono quindi inglobati diversi dati e, ovviamente, l'operazione da svolgersi.
 
-\clearpage{\pagestyle{empty}\cleardoublepage}
+I processori ARM, montati sulla stragrande maggioranza di dispositivi Android così come anche sui modelli di Raspberry Pi testati,
+dispongono di un'architettura SIMD avanzata chiamata NEON.\\%citazione a qualche documentazione NEON?
+Poiché la libreria OpenCV fornisce nativamente supporto per le istruzioni NEON, risulta piuttosto immediato testare l'utilizzo di
+tali istruzioni nell'applicazione OTV.
+%L'esecuzione fisica di queste istruzioni avviene mediante un'unica unità di controllo che piloti diverse ALU in maniera sincrona,
+%ciascuna di queste operanti su un differente dato tra quelli specificati.
+
+L'utilizzo delle istruzioni SIMD può beneficiare specialmente i casi in cui una singola operazione debba essere ripetuta molte
+volte su un insieme di dati anche grande. È il caso dell'elaborazione di immagini, in cui spesso è richiesto operare su dati sotto
+forma di matrici ed eseguire operazioni anche semplici ma molto ripetitive.
+
+\subsubsection{GPU e OpenCL}
+
+L'utilizzo della potenza di calcolo di una GPU è giustamente considerato tra le ottimizzazioni da testare: qui il parallelismo
+è intrinseco al tipo di processore, che è progettato appositamente per svolgere operazioni semplici ma ripetitive su un grande
+insieme di dati, in particolare nei casi di elaborazione di immagini. Tuttavia, come evidenziato in \cite{rs12122047}
+il potenziale guadagno in efficienza che questa soluzione garantirebbe non è facilmente stimabile e dipende da una varietà di
+fattori.
+
+La libreria OpenCL permette di sfruttare le funzionalità della GPU, qualora supportata dal dispositivo in questione.

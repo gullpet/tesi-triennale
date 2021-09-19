@@ -51,21 +51,23 @@
 \pagenumbering{arabic} %numerazione araba per il contenuto effettivo
 
 %++++++++++++
+\shipout\null
 
 \lhead{\leftmark}
 \rhead{\thepage}
 
 \input{./capitoli/capitolo1-otv.tex}
 
+\clearpage{\pagestyle{empty}\cleardoublepage}
+
+\shipout\null
+\stepcounter{page}
+
 %===========
 
-%\chapter{Processo di sviluppo}
-%\section{Prima sezione}
+\input{./capitoli/capitolo2-sviluppo.tex}
 
-
-
-
-%\clearpage{\pagestyle{empty}\cleardoublepage}
+\clearpage{\pagestyle{empty}\cleardoublepage}
 
 %===========
 
