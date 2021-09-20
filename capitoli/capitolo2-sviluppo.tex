@@ -152,10 +152,18 @@ con l'utilizzo di classi Java.
 
 È comunque disponibile il supporto per codice nativo C/C++ grazie all'NDK (\emph{Native Development Kit}): un insieme di strumenti
 per la compilazione e il debug integrabili con Android Studio. Lo strumento di configurazione di default per codice nativo è 
-CMake, tra i più diffusi per progetti C e C++, il cui utilizzo è stato brevemente dimostrato nella sezione di cross-compilazione 
-di OpenCV.
+CMake, tra i più diffusi per progetti C e C++: un esempio di configurazione tramite CMake è quello giusto esposto nella
+sezione di cui sopra, in cui si aggiungono le librerie OpenCV al progetto.
 
 Per configurare infine il progetto nella sua interezza, compresi i dettagli di deployment, Android Studio richiede l'utilizzo 
 del plugin \textbf{Gradle}, che può essere integrato con CMake (in modo molto automatizzato) qualora sia prevista la 
 presenza di codice nativo.
+
+\subsection{Architettura dell'applicazione}
+
+In seguito ad un'attenta analisi, si è deciso di strutturare l'applicazione Android come segue:
+
+- Thread principale che gestisca UI\\
+- Thread in background (demone) che implementi il ciclo di funzionamento OTV
+
 
