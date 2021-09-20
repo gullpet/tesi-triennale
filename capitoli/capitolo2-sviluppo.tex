@@ -29,11 +29,14 @@ in bash che automatizzasse in minima parte il processo e fornisse inoltre uno sc
 volesse modificare la configurazione di OpenCV, in particolare aggiungendo o rimuovendo ottimizzazioni hardware. 
 Si riporta di seguito il passaggio principale dello script:
 
+\definecolor{bg}{rgb}{0.9,0.9,0.9}
+
 \usemintedstyle{tango}
 \begin{minted}[
     frame=lines,
     framesep=2mm,
     baselinestretch=1.2,
+    bgcolor=bg,
     fontsize=\footnotesize
 ]{bash}
     for ABI in "armeabi-v7a" "arm64-v8a"; do
@@ -96,18 +99,38 @@ OpenCV, l'altra per contenere le librerie dinamiche contenenti il codice (file \
 Sia gli header che le librerie vengono inclusi nel progetto aggiungendo istruzioni ad hoc all'interno del file 
 \texttt{CMakeLists.txt} generato automaticamente da Android Studio per compilare la componente nativa del progetto che
 comunichi con gli entry point Java.
-Segue un esempio con le principali istruzioni CMake utilizzati per aggiungere le librerie di OpenCV:
+Segue un esempio con le principali istruzioni CMake utilizzate per aggiungere le librerie di OpenCV:
 
 \usemintedstyle{vs}
 \begin{minted}[
     frame=lines,
     framesep=2mm,
     baselinestretch=1.2,
+    bgcolor=bg,
     fontsize=\footnotesize
 ]{cmake}
 
-includedirectories("../jniIncludes");
+include_directories(${CMAKE_SOURCE_DIR}/../jniIncludes)
 
+add_library( libopencv_core SHARED IMPORTED )
+set_target_properties( libopencv_core PROPERTIES IMPORTED_LOCATION
+        ${CMAKE_SOURCE_DIR}/../cmakeLibs/${ANDROID_ABI}/libopencv_core.so)
+
+#...
+
+target_link_libraries( 
+        # Specifies the target library.
+            native-lib
+
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib}
+
+        libopencv_core
+        #...
+)
+
+#...
 \end{minted}
 
 \section{Sviluppo dell'applicazione Android}
