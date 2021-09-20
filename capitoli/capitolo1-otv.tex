@@ -14,7 +14,7 @@ aggiuntiva.
 \underline{\emph{*Immagine applicazione OTV 2 (quella con lo sketch del fiume usata nel paper nuovo)*}}
 
 \section{Ciclo di funzionamento}
-Il dispositivo così composto, una volta accuratamente posizionato ed avviato, dovrebbe eseguire \emph{quattro} misurazioni 
+Il dispositivo Android così composto, una volta accuratamente posizionato ed avviato, dovrebbe eseguire \emph{quattro} misurazioni 
 della velocità dell'acqua ogni ora, risultando quindi a regime in un ciclo di funzionamento periodico della durata di 15 minuti.
 
 Sebbene la misurazione mediante l'algoritmo OTV sia svolta sul momento, non viene effettuata sulle immagini direttamente ricevute
@@ -49,7 +49,7 @@ e di idle.
 Prima di introdurre i vari livelli di ottimizzazione, va intanto fatto notare che la specifica implementazione di OTV presa in
 caso è basata sulla libreria open-source di computer vision \textbf{OpenCV}.\\
 OpenCV fornisce un framework per la creazione di applicazioni legate alla computer vision e implementa una vasta gamma di
-algoritmi, tra cui l'algoritmo di Lucas-Kanade utilizzato da OTV e precedentemente descritto.\\
+algoritmi, tra cui l'algoritmo di Lucas-Kanade utilizzato da OTV già menzionato.\\
 L'utilizzo di OpenCV prescrive una serie di passaggi di installazione che variano in base all'ambiente di sviluppo e che
 --- nel caso specifico di Android --- verranno analizzati nel successivo capitolo.
 
@@ -65,6 +65,15 @@ da disattivare le opzioni software che risultino superflue (Wi-Fi, Bluetooth ecc
 sistema operativo utilizzato e dunque dipendenti dal dispositivo in questione. Si vedranno ottimizzazioni di questo tipo
 esclusive al sistema Android.
 
+Per quanto riguarda le ottimizzazioni software, una di queste è risultata particolarmente efficiente nei test effettuati
+su Raspberry: l'elaborazione in \textbf{scala di grigi} (o \textbf{monocromatica})\cite{app11157027}. Non si tratta di una configurazione
+a livello di sistema operativo bensì di una piccola modifica al codice di OTV: i fotogrammi precedentemente estratti vengono
+acquisiti --- mediante le API di OpenCV --- come immagini monocromatiche invece che a colori. Questo passaggio non comporta 
+risultati particolarmente diversi (in termini di velocità e numero di traiettorie rilevate) ma consente di ottenere un 
+notevole guadagno in termini di prestazioni. Questo deriva dal fatto che le immagini in scala di grigi
+sono composte da un singolo canale, a differenza delle immagini a colori rappresentate invece da tre canali 
+(Rosso, Verde, Giallo).
+
 \subsection{Ottimizzazioni hardware}
 
 Nel caso delle ottimizzazioni hardware, si parla di particolari metodi che introducono differenti modelli di esecuzione
@@ -78,9 +87,11 @@ parallelizzazione:
     \item Esecuzione su \textbf{GPU} mediante la libreria \textbf{OpenCL}
 \end{itemize}
 
+\underline{\emph{*Immagine confronto tra varie ottimizzazioni nel paper 3*}}
+
 \subsubsection{OpenMP e TBB}
 
-OpenMP e TBB sono due librerie open-source che in fase di sperimentazione sono state utilizzate per testare il parallelismo
+OpenMP e TBB sono due librerie che in fase di sperimentazione sono state utilizzate per testare il parallelismo
 \emph{thread-level} in modo da sfruttare i multipli core disponibili nelle moderne CPU. Le due librerie --- poiché
 forniscono lo stesso tipo di funzionalità --- sono da utilizzare in modo mutuamente esclusivo. La scelta della 
 libreria da utilizzare cadrà dunque su quella che garantisca le migliori prestazioni.
@@ -91,8 +102,8 @@ SIMD (\textit{Single Instruction Multiple Data}) è una classe di istruzioni che
 singolo core. Il modello prevede l'esecuzione della stessa operazione su una molteplicità di dati mediante l'utilizzo di una
 singola istruzione. All'interno di un'istruzione vengono quindi inglobati diversi dati e, ovviamente, l'operazione da svolgersi.
 
-I processori ARM, montati sulla stragrande maggioranza di dispositivi Android così come anche sui modelli di Raspberry Pi testati,
-dispongono di un'architettura SIMD avanzata chiamata NEON.\\%citazione a qualche documentazione NEON?
+I processori ARM, montati sulla stragrande maggioranza di dispositivi Android così come anche sui modelli di Raspberry Pi già 
+testati, dispongono di un'architettura SIMD avanzata chiamata NEON.\\%citazione a qualche documentazione NEON?
 Poiché la libreria OpenCV fornisce nativamente supporto per le istruzioni NEON, risulta piuttosto immediato testare l'utilizzo di
 tali istruzioni nell'applicazione OTV.
 %L'esecuzione fisica di queste istruzioni avviene mediante un'unica unità di controllo che piloti diverse ALU in maniera sincrona,

@@ -4,4 +4,135 @@ Parlando ora dell'effettiva operazione di porting di OTV su dispositivo Android,
 e le complessità riscontrate durante il processo di sviluppo. Verranno trattati inoltre i dettagli tecnici dell'applicazione
 e i meccanismi utilizzati propri del sistema Android.
 
-\section{Il sistema Android}
+\section{OpenCV}
+
+Come brevemente spiegato nel capitolo precedente, il codice disponibile di OTV è basato su OpenCV.
+Nel caso di Android, i moduli di OpenCV devono essere necessariamente incapsulati all'interno dell'applicazione, non essendo
+possibile installarli tra le librerie di sistema. Chiaramente, i moduli dovranno essere compilati con la toolchain di Android
+per poter ottenere binari effettivamente compatibili con il sistema operativo.
+
+I binari di OpenCV sono reperibili sul sito ufficiale oppure compilabili manualmente tramite una
+\textbf{cross-compilazione}: questa seconda opzione è preferibile in quanto consente di configurare a proprio piacimento
+l'installazione di OpenCV, aggiungendo o rimuovendo selettivamente le ottimizzazioni introdotte nel capitolo 1.
+
+Tutte le ottimizzazioni hardware discusse, infatti, sono disponibili su OpenCV. 
+Non avrebbe senso invece implementarle nel codice OTV poiché tutte le operazioni che facciano uso intensivo della CPU e 
+che richiedano tempi di esecuzione piuttosto lunghi sono interne alla libreria OpenCV.
+L'unica ottimizzazione che effettivamente viene implementata nel codice di OTV è l'elaborazione delle immagini in scala di
+grigi (non essendo a livello hardware): è sufficiente aggiungere una riga di codice nel momento in cui i frame estratti vengono
+letti dall'applicazione.
+
+\subsection{Cross-compilazione}
+
+Dovendo testare numerose configurazioni diverse, per la cross-compilazione di OpenCV è stato preparato un semplice script 
+in bash che automatizzasse in minima parte il processo e fornisse inoltre uno scheletro da seguire nel caso in cui si 
+volesse modificare la configurazione di OpenCV, in particolare aggiungendo o rimuovendo ottimizzazioni hardware. 
+Si riporta di seguito il passaggio principale dello script:
+
+\usemintedstyle{tango}
+\begin{minted}[
+    frame=lines,
+    framesep=2mm,
+    baselinestretch=1.2,
+    fontsize=\footnotesize
+]{bash}
+    for ABI in "armeabi-v7a" "arm64-v8a"; do
+        mkdir -p build_$ABI
+        cd build_$ABI
+        rm CMakeCache.txt
+        cmake \
+        -DCMAKE_TOOLCHAIN_FILE=$ANDROID_TOOLCHAIN_PATH \
+        -DANDROID_ABI=$ABI \
+        -DANDROID_NATIVE_API_LEVEL=$ANDROID_API_LEVEL \
+        -DANDROID_STL=c++_shared \
+        -GNinja -DCMAKE_BUILD_TYPE:STRING=Release \
+        -DBUILD_FAT_JAVA_LIB=OFF \
+        -DBUILD_JAVA=OFF \
+        -DBUILD_SHARED_LIBS=ON \
+        -DWITH_TBB=ON -DBUILD_TBB=ON \
+        -DENABLE_NEON=OFF \
+        -DWITH_OPENMP=OFF \
+        -DWITH_OPENCL=OFF \
+        -DWITH_CAROTENE=OFF \
+        -DWITH_PTHREADS_PF=OFF \
+        -DANDROID_SDK_ROOT=$ANDROID_SDK_ROOT \
+        -DANDROID_NDK=$ANDROID_NDK \
+        -DOPENCV_ENABLE_NONFREE=ON \
+        -DBUILD_TESTS=FALSE -DBUILD_PERF_TESTS=FALSE \
+        -DBUILD_ANDROID_EXAMPLES=FALSE \
+        -DBUILD_DOCS:BOOL=OFF -DWITH_IPP=OFF -DWITH_MSMF=OFF \
+        ..
+    
+        ninja
+        ninja install
+        cd ..
+    done
+\end{minted}
+
+In questo caso viene utilizzato \textbf{CMake} per configurare la compilazione (scelta obbligata, poiché il file CMake è fornito 
+nella distribuzione di OpenCV) e \textbf{ninja} come \textit{build system}. 
+CMake infatti non esegue la vera e propria compilazione, ma prepara l'ambiente e crea i file di compilazione che 
+verranno poi usati dal build system per effettivamente compilare il progetto. In alternativa a ninja era possibile 
+utilizzare \textbf{Make}, la scelta fra i due non comporta nessuna differenza nel risultato ma può influire leggermente 
+sui tempi di compilazione.
+
+Tra le diverse opzioni di CMake si nota intanto \texttt{ANDROID\_ABI}, che specifica l'ABI per il quale compilare il
+progetto. Un ABI (\textit{Application Binary Interface}) rappresenta sostanzialmente l'insieme di set di istruzioni
+supportate da un dispositivo \cite{adev_abi}. Si limita la scelta ad \texttt{armeabi-v7a} e \texttt{arm64-v8a}, rispettivamente 
+le ABI delle architetture ARM a 32 e 64 bit. Architetture differenti da ARM non verrebbero comunque testate su Android.
+
+Altre opzioni interessanti sono quelle riguardanti le ottimizzazioni hardware: ad esempio \texttt{WITH\_TBB}, 
+\texttt{ENABLE\_NEON} o \texttt{WITH\_OPENCL}. Per abilitare le ottimizzazioni è sufficiente settare a \texttt{ON}
+l'opzione di interesse.
+
+\subsection{Installazione}
+
+Una volta ottenuti i binari di tutti i moduli necessari di OpenCV (tramite cross-compilazione o download), è possibile
+procedere con l'inserimento all'interno del progetto di Android Studio: come già detto, queste librerie dovranno essere 
+parte integrante dell'applicazione.
+
+L'inserimento è molto meccanico e avviene con la creazione di due cartelle nel progetto: una per contenere gli header di
+OpenCV, l'altra per contenere le librerie dinamiche contenenti il codice (file \texttt{.so}).
+Sia gli header che le librerie vengono inclusi nel progetto aggiungendo istruzioni ad hoc all'interno del file 
+\texttt{CMakeLists.txt} generato automaticamente da Android Studio per compilare la componente nativa del progetto che
+comunichi con gli entry point Java.
+Segue un esempio con le principali istruzioni CMake utilizzati per aggiungere le librerie di OpenCV:
+
+\usemintedstyle{vs}
+\begin{minted}[
+    frame=lines,
+    framesep=2mm,
+    baselinestretch=1.2,
+    fontsize=\footnotesize
+]{cmake}
+
+includedirectories("../jniIncludes");
+
+\end{minted}
+
+\section{Sviluppo dell'applicazione Android}
+
+Il deployment e l'installazione di applicazioni su dispositivi Android avviene mediante l'uso di file .APK.
+I file APK sono sostanzialmente degli archivi compressi in formato .ZIP il cui contenuto è quindi visualizzabile con
+un qualsiasi gestore di archivi. Contengono tutti i file necessari per una singola applicazione Android: librerie native,
+classi Java compilate, ma anche risorse e immagini.
+
+La creazione dei file APK a partire dai file sorgente e dal progetto iniziale spetta solitamente a sistemi di compilazione.
+Per facilitare questa operazione, viene di norma utilizzato un ambiente di sviluppo e quindi un IDE specializzato.\\
+Nel caso di Android l'IDE consigliato è Android Studio, che fornisce un bundle di installazione contenente tutti gli strumenti
+e le toolchain necessarie, facilmente configurabili.
+
+Il linguaggio principale supportato da Android è \textbf{Java}: ogni applicazione richiede anche solo una minima parte scritta 
+in Java per poter utilizzare le API di sistema e gestire i cosiddetti \emph{Entry Point} dell'applicazione, ovvero i meccanismi 
+tramite i quali l'utente può avviare ed interagire con l'applicazione, l'interfaccia utente è infatti manipolabile esclusivamente
+con l'utilizzo di classi Java.
+
+È comunque disponibile il supporto per codice nativo C/C++ grazie all'NDK (\emph{Native Development Kit}): un insieme di strumenti
+per la compilazione e il debug integrabili con Android Studio. Lo strumento di configurazione di default per codice nativo è 
+CMake, tra i più diffusi per progetti C e C++, il cui utilizzo è stato brevemente dimostrato nella sezione di cross-compilazione 
+di OpenCV.
+
+Per configurare infine il progetto nella sua interezza, compresi i dettagli di deployment, Android Studio richiede l'utilizzo 
+del plugin \textbf{Gradle}, che può essere integrato con CMake (in modo molto automatizzato) qualora sia prevista la 
+presenza di codice nativo.
+
