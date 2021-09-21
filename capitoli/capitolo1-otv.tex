@@ -2,13 +2,13 @@
 \section{Contesto di utilizzo}
 
 Come già brevemente descritto, OTV prevede un deployment su dispositivi di dimensioni ridotte e autosufficienti dal punto di
-vista energetico. In particolare, la configurazione testata su Raspberry introduceva i seguenti componenti:
+vista energetico. In particolare, la configurazione testata su Raspberry introduceva i seguenti componenti \cite{app11157027}:
 \begin{itemize}
     \item Raspberry Pi 3B/4 per l'elaborazione
     \item Panello solare 6 W (PiJuice Solar Panel) per sostenere i consumi energetici
     \item Batteria esterna (PiJuice Hat) per fornire alimentazione
 \end{itemize}
-\cite{app11157027} Una simile configurazione verrebbe usata con smartphone, salvo ovviamente l'utilizzo di una batteria 
+ Una simile configurazione verrebbe usata con smartphone, salvo ovviamente l'utilizzo di una batteria 
 aggiuntiva.
 
 \underline{\emph{*Immagine applicazione OTV 2*}}
@@ -54,6 +54,7 @@ L'utilizzo di OpenCV prescrive una serie di passaggi di installazione che varian
 --- nel caso specifico di Android --- verranno analizzati nel successivo capitolo.
 
 \section{Ottimizzazioni}
+\label{sec:ottim}
 
 Le ottimizzazioni applicabili ad OTV analizzate in \cite{rs12122047} consistono in una serie di tecniche e meccanismi che
 possano contribuire ad aumentare l'efficienza energetica del sistema. %e in generale ad abbassarne i consumi. 
@@ -66,13 +67,13 @@ sistema operativo utilizzato e dunque dipendenti dal dispositivo in questione. S
 esclusive al sistema Android.
 
 Per quanto riguarda le ottimizzazioni software, una di queste è risultata particolarmente efficiente nei test effettuati
-su Raspberry: l'elaborazione in \textbf{scala di grigi} (o \textbf{monocromatica})\cite{app11157027}. Non si tratta di una configurazione
-a livello di sistema operativo bensì di una piccola modifica al codice di OTV: i fotogrammi precedentemente estratti vengono
-acquisiti --- mediante le API di OpenCV --- come immagini monocromatiche invece che a colori. Questo passaggio non comporta 
-risultati particolarmente diversi (in termini di velocità e numero di traiettorie rilevate) ma consente di ottenere un 
-notevole guadagno in termini di prestazioni. Questo deriva dal fatto che le immagini in scala di grigi
-sono composte da un singolo canale, a differenza delle immagini a colori rappresentate invece da tre canali 
-(Rosso, Verde, Blu).
+su Raspberry mostrati in \cite{app11157027}: l'elaborazione in \textbf{scala di grigi} (o \textbf{monocromatica}). 
+Non si tratta di una configurazione a livello di sistema operativo bensì di una piccola modifica al codice di OTV: 
+i fotogrammi precedentemente estratti vengono acquisiti --- mediante le API di OpenCV --- come immagini monocromatiche invece 
+che a colori. Questo passaggio non comporta  risultati particolarmente diversi (in termini di velocità e numero di 
+traiettorie rilevate) ma consente di ottenere un notevole guadagno in termini di prestazioni. Questo deriva dal fatto che le 
+immagini in scala di grigi sono composte da un singolo canale, a differenza delle immagini a colori rappresentate invece da 
+tre canali (Rosso, Verde, Blu).
 
 \subsection{Ottimizzazioni hardware}
 

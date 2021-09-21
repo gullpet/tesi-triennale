@@ -1,3 +1,6 @@
+%% Modified by Guglielmo Palaferri on 2021-09-21
+%% in order to render specific BibTeX properties in Italian.
+%% (See lines 142 & 195)
 %%
 %% IEEEtran.bst
 %% BibTeX Bibliography Style file for IEEE Journals and Conferences (unsorted)
@@ -45,7 +48,6 @@
 %% ** Modified files should be clearly indicated as such, including  **
 %% ** renaming them and changing author support contact information. **
 %%*************************************************************************
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% DEFAULTS FOR THE CONTROLS OF THE BST STYLE %%
@@ -137,7 +139,7 @@ FUNCTION {default.name.latex.cmd}{ "" }
 
 
 % The default URL prefix.
-FUNCTION {default.name.url.prefix}{ "[Online]. Available:" }
+FUNCTION {default.name.url.prefix}{ "[Online]. Disponibile:" }
 
 
 % Other controls that cannot be accessed via IEEEtranBSTCTL entry type.
@@ -190,7 +192,7 @@ FUNCTION {completed.message}
 %% STRING CONSTANTS %%
 %%%%%%%%%%%%%%%%%%%%%%
 
-FUNCTION {bbl.and}{ "and" }
+FUNCTION {bbl.and}{ "e" }
 FUNCTION {bbl.etal}{ "et~al." }
 FUNCTION {bbl.editors}{ "eds." }
 FUNCTION {bbl.editor}{ "ed." }

@@ -13,7 +13,7 @@ per poter ottenere binari effettivamente compatibili con il sistema operativo.
 
 I binari di OpenCV sono reperibili sul sito ufficiale oppure compilabili manualmente tramite una
 \textbf{cross-compilazione}: questa seconda opzione è preferibile in quanto consente di configurare a proprio piacimento
-l'installazione di OpenCV, aggiungendo o rimuovendo selettivamente le ottimizzazioni introdotte nel capitolo 1.
+l'installazione di OpenCV, aggiungendo o rimuovendo selettivamente le ottimizzazioni introdotte in \autoref{sec:ottim}.
 
 Tutte le ottimizzazioni hardware discusse, infatti, sono disponibili su OpenCV. 
 Non avrebbe senso invece implementarle nel codice OTV poiché tutte le operazioni che facciano uso intensivo della CPU e 
@@ -81,8 +81,9 @@ sui tempi di compilazione.
 
 Tra le diverse opzioni di CMake si nota intanto \texttt{ANDROID\_ABI}, che specifica l'ABI per il quale compilare il
 progetto. Un ABI (\textit{Application Binary Interface}) rappresenta sostanzialmente l'insieme di set di istruzioni
-supportate da un dispositivo \cite{adev_abi}. Si limita la scelta ad \texttt{armeabi-v7a} e \texttt{arm64-v8a}, rispettivamente 
-le ABI delle architetture ARM a 32 e 64 bit. Architetture differenti da ARM non verrebbero comunque testate su Android.
+supportate da un dispositivo, come spiegato in \cite{adev_abi}. 
+Si limita la scelta ad \texttt{armeabi-v7a} e \texttt{arm64-v8a}, rispettivamente le ABI delle architetture ARM a 32 e 64 bit. 
+Architetture differenti da ARM non verrebbero comunque testate su Android.
 
 Altre opzioni interessanti sono quelle riguardanti le ottimizzazioni hardware: ad esempio \texttt{WITH\_TBB}, 
 \texttt{ENABLE\_NEON} o \texttt{WITH\_OPENCL}. Per abilitare le ottimizzazioni è sufficiente settare a \texttt{ON}
@@ -161,9 +162,104 @@ presenza di codice nativo.
 
 \subsection{Architettura dell'applicazione}
 
-In seguito ad un'attenta analisi, si è deciso di strutturare l'applicazione Android come segue:
+Il codice Java e quello nativo, all'interno di un'applicazione Android, comunicano grazie al framework \textbf{JNI} 
+(\textit{Java Native Interface}). Questo framework consente in modo particolare l'invocazione di funzioni scritte in codice
+nativo da parte di classi Java. 
 
-- Thread principale che gestisca UI\\
-- Thread in background (demone) che implementi il ciclo di funzionamento OTV
+Nonostante il funzionamento di JNI sia piuttosto complesso (si veda la documentazione in \cite{jnispec}), l'utilizzo di esso 
+in un progetto Android Studio avviene in modo piuttosto guidato e trasparente nei confronti dello sviluppatore: tutti i 
+dettagli interni di collegamento e configurazione tra i vari componenti vengono gestiti in maniera automatizzata. 
+Inoltre, come si vedrà, ai fini di questo progetto è stato sufficiente fare uso delle funzioni più basilari di JNI.
 
+Dopo un'attenta analisi, si è deciso di strutturare l'applicazione come segue:
+\begin{itemize}
+    \item Entry point Java (\texttt{MainActivity.java});
+    \item Classe Java che implementi un \emph{thread} secondario per l'invocazione del codice OTV (\texttt{OTVThread.java});
+    \item File C++ che faccia da wrapper per le funzionalità di OTV, interfacciandosi con il codice Java (file 
+    \texttt{native-lib.cpp});
+    \item Codice di OTV, pressoché inalterato (cartella \texttt{otv/src/}).
+\end{itemize}
 
+Il motivo per cui si è scelto di introdurre un thread apposito per l'invocazione di OTV è legato alle modalità con cui la 
+classe MainActivity gestisce l'interazione con l'utente.
+Ogni \textit{Activity} ha un ciclo di vita --- descritto in \cite{adev_lifecycle} --- basato su funzioni di callback invocate dal sistema
+Android a seguito di determinate azioni compiute dall'utente, ad esempio il metodo \texttt{onCreate}, invocato non appena
+l'utente apre l'applicazione.
+
+Poiché OTV presenta le caratteristiche di un demone (ha un ciclo di esecuzione che idealmente non termina mai), inserirlo 
+all'interno di un metodo di callback significherebbe deviare dal normale ciclo di esecuzione dell'attività.
+La scelta di un thread che esegua OTV in background è quasi obbligata in quanto è l'unico modo di garantire un'esecuzione
+(quasi) disaccoppiata dagli eventi della UI ma soprattutto che avvenga in modo asincrono rispetto alla creazione degli elementi
+dell'interfaccia grafica: se si invocasse OTV all'interno del metodo \texttt{onCreate}, l'applicazione risulterebbe bloccata 
+sulla creazione dell'interfaccia.
+
+Nel metodo \texttt{onCreate} della classe \texttt{MainActivity} risulterà quindi:
+
+\usemintedstyle{vs}
+\begin{minted}[
+    baselinestretch=1.2,
+    fontsize=\footnotesize
+]{java}
+protected void onCreate(Bundle savedInstanceState) {
+    //...
+    OTVThread otvThread = new OTVThread(updateUIHandler);
+    otvThread.start();
+
+    //casella di testo nella UI
+    tv.setText("OTV was launched in background...");
+}
+\end{minted}
+
+Nella classe \texttt{OTVThread}:
+
+\usemintedstyle{vs}
+\begin{minted}[
+    baselinestretch=1.2,
+    fontsize=\footnotesize
+]{java}
+public void run() {
+    String otv_results = runOTV();
+    //...
+}
+
+// metodo nativo invocabile tramite JNI
+public native String runOTV();
+\end{minted}
+
+\vspace{1em}
+
+Infine, nel wrapper C++ (\texttt{native-lib.cpp}):
+
+\vspace{1em}
+
+\usemintedstyle{vs}
+\begin{minted}[
+    baselinestretch=1.2,
+    fontsize=\footnotesize
+]{cpp}
+
+extern "C" JNIEXPORT jstring JNICALL 
+Java_gullp_androidotv_OTVThread_runOTV( JNIEnv* env, jobject) {
+
+    //costruzione dei parametri richiesti
+    char* argv[6];
+    argv[0] = "OTV_AndroidInstance";
+    argv[1] = PATH_INFO_VIDEO;
+    argv[2] = PATH_FILE_PARAMS;
+    argv[3] = PATH_LK_FILE;
+    argv[4] = PATH_OUTPUT;
+    argv[5] = PATH_MASK;
+
+    LOGD("Running OTV...");
+
+    //effettiva invocazione del codice OTV nativo
+    return env->NewStringUTF(run(6, argv).c_str());
+}
+
+\end{minted}
+
+\vspace{1em}
+
+I file di configurazione richiesti da OTV (contenenti i parametri di calibrazione per l'algoritmo di Lucas Kanade)
+sono stati inseriti nella cartella \texttt{/data/data/\{nome\_package\}} del dispositivo, che rappresenta la porzione di 
+storage interno dedicata all'applicazione.

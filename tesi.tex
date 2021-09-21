@@ -35,27 +35,26 @@
 \newpage
 \clearpage{\pagestyle{empty}\cleardoublepage}
 
-\pagenumbering{roman} %numerazione romana per le pagine di prefazione
+\pagenumbering{arabic}
 
 %il textwidth=455pt serve per il frontespizio, è troppo grande per il testo
 \newgeometry{textwidth=426pt}
 
 \shipout\null
+\tableofcontents
+
+%\lhead{\leftmark}
+%\rhead{\thepage}
 \input{./capitoli/introduzione.tex}
 
-\tableofcontents
 %\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
 %\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries
 %INDICE}}
 \clearpage{\pagestyle{empty}\cleardoublepage}
 
-\pagenumbering{arabic} %numerazione araba per il contenuto effettivo
-
 %++++++++++++
 \shipout\null
-
-\lhead{\leftmark}
-\rhead{\thepage}
+\stepcounter{page}
 
 \input{./capitoli/capitolo1-otv.tex}
 
