@@ -1,0 +1,144 @@
+\chapter{Test e risultati}
+
+Completato lo sviluppo dell'applicazione, ha avuto luogo la fase finale nonché probabilmente la più importante: il testing 
+di varie configurazioni e la conseguente raccolta ed analisi dei risultati, al fine di valutare i vantaggi e gli svantaggi di 
+un porting sul sistema Android.
+
+A differenza del testing su Raspberry Pi, i cui modelli sono molto standardizzati e distribuiti dallo stesso produttore,
+per gli smartphone Android i risultati ottenuti in termini di performance e consumi possono variare anche molto al variare
+del dispositivo, a seconda delle caratteristiche tecniche di quest'ultimo.
+
+Per quanto riguarda il seguente progetto, i test sono stati svolti su un dispositivo Android basato sul 
+SoC \textit{Qualcomm Snapdragon 730} (sul quale è presente una CPU octa-core).\\
+Sono quindi prevedibili risultati 
+migliori (perlomeno in termini di prestazioni) rispetto a dispositivi aventi caratteristiche tecniche inferiori.
+
+\section{Testing}
+
+Ai fini del testing sono stati utilizzati fotogrammi precedentemente estratti poiché riprodurre l'intero processo
+di acquisizione ed estrazione andrebbe oltre gli scopi limitati del seguente lavoro e aggiungerebbe notevole complessità 
+al progetto, costringendo a fare i conti con diversi problemi (ad esempio, la mancanza di \textit{ffmpeg} su Android).
+Difatti, nel testare l'applicazione si è considerata esclusivamente la fase di esecuzione, tralasciando le altre tre fasi
+presentate in \autoref{sec:ciclo} principalmente per motivi di tempo. L'esecuzione di OTV rappresenta comunque la fase più
+importante e con il maggior numero di variabili che possano influenzare le prestazioni e i consumi: le analisi che ne
+conseguono sono sicuramente indicative delle potenzialità di un dispositivo.
+
+Il testing è stato eseguito mediante l'ausilio degli strumenti forniti dalla repository GitHub di OTV (\cite{otvgit}),
+in particolare gli script Bash adibiti alla creazione dei file di configurazione richiesti per il funzionamento del programma.
+Lo script che implementa l'estrazione dei frame a partire da un file video fa uso del programma
+\textit{ffmpeg} e salva i fotogrammi estratti all'interno di una cartella \texttt{frames} il cui percorso va specificato.
+
+La cartella dei frames e gli altri file necessari sono stati quindi prima generati sulla macchina utilizzata per lo sviluppo
+dell'applicazione, poi trasferiti sul dispositivo Android mediante l'interfaccia grafica fornita da Android Studio.
+Collegando infatti lo smartphone al PC su cui esegue Android Studio è possibile accedere ad una sezione dedicata al file system
+del dispositivo.
+
+Come già menzionato, tutti i file di servizio sono stati inseriti all'interno della cartella \texttt{/data/data/\{package\_applicazione\}}
+poiché questa fa parte del cosiddetto storage \emph{interno} dell'applicazione, in cui gli accessi non sono vincolati da permessi
+richiesti all'utente. Questa cartella inoltre non è accessibile dall'utente se non tramite strumenti esterni al dispositivo 
+(come il debugger Android) e può quindi essere utile ad evitare cancellazioni e/o modifiche accidentali dei file necessari.
+
+Particolare attenzione va posta al file \texttt{info\_video.txt}, generato in seguito all'estrazione dei frame. Il file si
+presenta nel seguente modo:
+
+\begin{verbatim}
+    FPS 25
+    Width 715
+    Height 540
+    FileCount 500
+    DirectoryFrame /data/data/gullp.androidotv/frames
+    Jump 2
+\end{verbatim}
+
+dove il parametro DirectoryFrame rappresenta la directory in cui sono presenti i frame: il file viene letto dall'applicazione
+in fase di inizializzazione, quindi è importante che il percorso di tale directory sia accurato.
+Tuttavia, essendo il file \texttt{info\_video.txt} generato da uno script eseguito su una macchina differente, è necessario
+andare a modificare tale parametro specificando la corrispettiva cartella nel dispositivo Android.
+
+\vspace{1em}
+
+Il processo di testing è avvenuto seguendo un'iterazione di questo tipo:
+
+\begin{enumerate}
+    \item Copia delle librerie dinamiche precompilate di OpenCV all'interno del progetto, ottenute con la cross-compilazione 
+    e nelle quali è attivo uno specifico set di ottimizzazioni;
+    \item Esecuzione dell'applicazione e trascrizione dei risultati ottenuti
+    \item Ripetizione del punto 2 fino ad ottenere una quantità soddisfacente di risultati
+    \item Reiterazione a partire dal punto 1 utilizzando una nuova configurazione di OpenCV
+\end{enumerate}
+
+\vspace{1em}
+
+I risultati così ottenuti sono poi stati sottoposti ad un'analisi finale per stabilire i vantaggi di ciascuna configurazione. 
+
+\section{Stima dei consumi energetici}
+
+Per stimare i consumi energetici dell'esecuzione di OTV è stato utilizzato uno strumento messo a disposizione per gli 
+sviluppatori Android: \textit{\textbf{Battery Historian}}. Si tratta di un tool web il cui utilizzo molto semplice è 
+descritto in \cite{adev_battery}. In sostanza, analizza i file di log generati dal dispositivo e ne visualizza gli eventi
+correlati al consumo di batteria, fornendone una presentazione ad alto livello tramite grafici e tabelle.
+Tra i parametri analizzati da Battery Historian figurano il livello di carica della batteria (in $mAh$) e la tensione generata
+da essa (in $V$). L'analisi viene svolta su tutto l'arco temporale coperto dai log: è bene quindi resettare i log relativi
+all'uso della batteria.
+
+I file di log necessari all'utilizzo di Battery Historian possono essere acquisiti mediante il debugger Android (\texttt{adb}): 
+la procedura guidata è disponibile in \cite{adev_batlog}.
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.38]{img/battery_historian_coulomb.png}
+        \caption{Andamento nel tempo del livello di carica della batteria in $mAh$}
+    \end{center}
+\end{figure}
+
+L'immagine di cui sopra rappresenta uno dei grafici ottenibili con Battery Historian di maggiore interesse al fine di
+determinare il consumo di batteria: l'andamento del livello di carica. Passando il cursore lungo il grafico è possibile
+ottenere informazioni aggiuntive particolarmente utili:
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.5]{img/battery_historian_hover.png}
+        \caption{Informazioni dettagliate relative ad uno specifico intervallo di tempo}
+    \end{center}
+\end{figure}
+
+Come si può in parte notare dalla figura, l'andamento è discretizzato con dei campionamenti del livello di carica ad 
+intervalli di tempo non regolari.
+
+Il dettaglio più interessante tra quelli forniti è il \textit{Discharge rate}: è il rapporto tra la differenza di carica 
+$\Delta Q$ e la lunghezza dell'intervallo $\Delta t$ e rappresenta quindi la media della \textbf{corrente in uscita} dalla 
+batteria sull'intervallo di tempo:
+
+\begin{equation*}
+    I_{t_1,t_2} = \frac{\Delta Q}{\Delta t} = \frac{Q(t_2) - Q(t_1)}{t_2 - t_1}
+    \hspace{7mm}
+    \bigg[ \frac{C}{s} \bigg] = [A]
+\end{equation*}
+
+Dove $t_1$ e $t_2$ sono rispettivamente gli istanti di inizio e di fine dell'intervallo e $Q(t)$ è la funzione 
+che rappresenta l'andamento della carica nel tempo. È possibile comunque applicare la medesima espressione conoscendo la 
+carica in $mAh$ sapendo che $1~mAh = 3.6~C$.
+
+A questo punto, per calcolare la potenza dissipata durante l'esecuzione di OTV e dunque ottenere l'energia consumata, è
+necessario avere a disposizione altre due informazioni:
+\begin{itemize}
+    \item I tempi di inizio e fine dell'esecuzione di OTV
+    \item Il valore della tensione durante l'esecuzione
+\end{itemize}
+
+Entrambe le informazioni sono reperibili immediatamente grazie alle tabelle fornite da Battery Historian: il tempo di inizio
+esecuzione di OTV coinciderà con l'istante in cui viene aperta l'applicazione, l'istante finale invece potrà essere stimato
+con minor precisione (poiché l'applicazione non viene chiusa al termine dell'esecuzione).
+Possiamo quindi calcolare l'energia consumata durante l'esecuzione con la seguente formula:
+
+\begin{equation*}
+    E = P \cdot \Delta t = \sum_{t_i = t_1}^{t_N} V_{t_{i-1}, t_i} \cdot I_{t_{i-1}, t_i} \cdot (t_i - t_{i-1})
+\end{equation*}
+
+Dove $\Delta t = t_N - t_0$ è la durata dell'esecuzione di OTV e $t_0, ..., t_N$ sono gli istanti di tempo che delimitano
+un campionamento di tensione o di corrente all'interno dell'intervallo di interesse lungo $\Delta t$.\\
+$P$ rappresenta la potenza media nell'intervallo $[t_0, t_N]$.
+
+\section{Analisi dei risultati}
+
+Al termine del progetto ha avuto luogo la fase di analisi dei risultati,
