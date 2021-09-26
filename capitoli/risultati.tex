@@ -73,6 +73,11 @@ I risultati così ottenuti sono poi stati sottoposti ad un'analisi finale per st
 
 \section{Stima dei consumi energetici}
 
+Data l'influenza che i consumi energetici hanno sulla realizzabilità e sulla valutazione di un dispositivo embedded di questo
+tipo, si è deciso di svolgere --- anche se non approfonditamente --- una stima dell'energia consumata da esso.
+È importante notare che si tratta di una stima, poiché gli strumenti utilizzati consentono un livello di precisione piuttosto
+basso nella misurazione dei consumi su periodi piuttosto brevi di tempo.
+
 Per stimare i consumi energetici dell'esecuzione di OTV è stato utilizzato uno strumento messo a disposizione per gli 
 sviluppatori Android: \textit{\textbf{Battery Historian}}. Si tratta di un tool web il cui utilizzo molto semplice è 
 descritto in \cite{adev_battery}. In sostanza, analizza i file di log generati dal dispositivo e ne visualizza gli eventi
@@ -92,7 +97,7 @@ la procedura guidata è disponibile in \cite{adev_batlog}.
 \end{figure}
 
 L'immagine di cui sopra rappresenta uno dei grafici ottenibili con Battery Historian di maggiore interesse al fine di
-determinare il consumo di batteria: l'andamento del livello di carica. Passando il cursore lungo il grafico è possibile
+determinare il consumo energetico: l'andamento del livello di carica. Passando il cursore lungo il grafico è possibile
 ottenere informazioni aggiuntive particolarmente utili:
 
 \begin{figure}[h!]
@@ -105,40 +110,63 @@ ottenere informazioni aggiuntive particolarmente utili:
 Come si può in parte notare dalla figura, l'andamento è discretizzato con dei campionamenti del livello di carica ad 
 intervalli di tempo non regolari.
 
-Il dettaglio più interessante tra quelli forniti è il \textit{Discharge rate}: è il rapporto tra la differenza di carica 
-$\Delta Q$ e la lunghezza dell'intervallo $\Delta t$ e rappresenta quindi la media della \textbf{corrente in uscita} dalla 
-batteria sull'intervallo di tempo:
+Il dettaglio più interessante tra quelli forniti è il \textit{Discharge rate} espresso in $mA$: è il rapporto tra la differenza
+di carica $\Delta Q$ e la lunghezza dell'intervallo $\Delta t$ e rappresenta quindi la media della \textbf{corrente in uscita} 
+dalla batteria sull'intervallo di tempo:
 
 \begin{equation*}
-    I_{t_1,t_2} = \frac{\Delta Q}{\Delta t} = \frac{Q(t_2) - Q(t_1)}{t_2 - t_1}
-    \hspace{7mm}
-    \bigg[ \frac{C}{s} \bigg] = [A]
+    I_{i} = \frac{\Delta Q_i}{\Delta t_i}
 \end{equation*}
 
-Dove $t_1$ e $t_2$ sono rispettivamente gli istanti di inizio e di fine dell'intervallo e $Q(t)$ è la funzione 
-che rappresenta l'andamento della carica nel tempo. È possibile comunque applicare la medesima espressione conoscendo la 
-carica in $mAh$ sapendo che $1~mAh = 3.6~C$.
+È possibile comunque applicare la medesima espressione conoscendo la carica in $mAh$ sapendo che $1~mAh = 3.6~C$.
 
-A questo punto, per calcolare la potenza dissipata durante l'esecuzione di OTV e dunque ottenere l'energia consumata, è
-necessario avere a disposizione altre due informazioni:
+A questo punto, per calcolare la potenza dissipata dallo smartphone durante l'esecuzione di OTV e dunque ottenere l'energia 
+consumata, è necessario avere a disposizione altre due informazioni:
 \begin{itemize}
     \item I tempi di inizio e fine dell'esecuzione di OTV
     \item Il valore della tensione durante l'esecuzione
 \end{itemize}
 
-Entrambe le informazioni sono reperibili immediatamente grazie alle tabelle fornite da Battery Historian: il tempo di inizio
-esecuzione di OTV coinciderà con l'istante in cui viene aperta l'applicazione, l'istante finale invece potrà essere stimato
-con minor precisione (poiché l'applicazione non viene chiusa al termine dell'esecuzione).
-Possiamo quindi calcolare l'energia consumata durante l'esecuzione con la seguente formula:
+Entrambe le informazioni sono reperibili immediatamente grazie alle tabelle fornite da Battery Historian.
+Analizzando i grafici della tensione si nota che essa non è costante ma soggetta a variazioni molto frequenti, 
+tende tuttavia ad assumere valori piuttosto omogenei con una bassa varianza ed è quindi approssimabile ad un valore medio
+con una discreta precisione, specie se l'intervallo di tempo analizzato è relativamente piccolo (60 secondi con la configurazione
+peggiore di OTV).\\
+Supponendo quindi di approssimare la tensione ad un valore $V$ e di avere a disposizione $N$ intervalli di calcolo della
+corrente durante l'esecuzione di OTV, è possibile calcolare l'energia consumata basandosi sulla potenza media dissipata come segue:
 
 \begin{equation*}
-    E = P \cdot \Delta t = \sum_{t_i = t_1}^{t_N} V_{t_{i-1}, t_i} \cdot I_{t_{i-1}, t_i} \cdot (t_i - t_{i-1})
+    %E = P \cdot \Delta t = \sum_{t_i = t_1}^{t_N} V_{t_{i-1}, t_i} \cdot I_{t_{i-1}, t_i} \cdot (t_i - t_{i-1})
+   %\\
+    E = P \cdot \Delta t = \sum_{i = 1}^{N}~V I_i \cdot \Delta t_i
 \end{equation*}
 
-Dove $\Delta t = t_N - t_0$ è la durata dell'esecuzione di OTV e $t_0, ..., t_N$ sono gli istanti di tempo che delimitano
-un campionamento di tensione o di corrente all'interno dell'intervallo di interesse lungo $\Delta t$.\\
-$P$ rappresenta la potenza media nell'intervallo $[t_0, t_N]$.
+Dove $\Delta t$ è la durata dell'esecuzione di OTV e $\Delta t_i$ è la lunghezza dell'intervallo di tempo in cui
+si verifica la corrente i-esima $I_i$.\\
+Poiché, come fatto notare poco sopra, l'esecuzione di OTV termina in un lasso di tempo piuttosto breve, sono spesso osservabili
+tensioni e correnti costanti lungo tale periodo.
 
 \section{Analisi dei risultati}
 
-Al termine del progetto ha avuto luogo la fase di analisi dei risultati,
+Al termine del progetto ha avuto luogo la fase di analisi dei risultati, sia dal punto di vista delle prestazioni che dei 
+consumi.
+
+Si riportano di seguito i dati ottenuti in termini di tempo di esecuzione, evidenziando le differenze tra le varie configurazioni.
+
+\ldots
+
+Come si può notare, l'elaborazione in scala di grigi influisce notevolmente sulle prestazioni, dimezzando i tempi nella quasi
+totalità dei casi. Sorprendentemente, l'abilitazione di opzioni quali l'uso della GPU con OpenCL e di istruzioni SIMD NEON non
+ha influito in alcun modo sull'esecuzione. 
+
+Con molta probabilità, poichè i tempi di esecuzione con e senza tali ottimizzazioni
+sono assolutamente inalterati, ciò è dovuto al mancato utilizzo di GPU e istruzioni SIMD o all'utilizzo forzato di queste.
+Il motivo più plausibile è che OpenCL non sia completamente supportato dal dispositivo Android in questione. Per quanto riguarda
+NEON, è possibile che questo venga utilizzato indipendentemente dalla configurazione scelta.
+
+\ldots
+
+Nel testare i consumi energetici sono state abilitate tutte le possibili ottimizzazioni software fornite dal sistema Android:
+disabilitazione di connessione dati, Wi-Fi, Bluetooth e attivazione della \textbf{modalità risparmio energetico}, avendo cura di
+mantenere attive le funzionalità basilari necessarie alla comunicazione (es. SMS). Nessuna di queste ottimizzazioni ha 
+influito negativamente sulle prestazioni dell'applicazione.
