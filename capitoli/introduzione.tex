@@ -15,7 +15,12 @@ Una soluzione che preveda invece l'installazione di apparecchi ottici, e basi qu
 immagini, può consentire di abbattere notevolmente i costi e di distribuire il sistema di osservazione ottenendo quindi 
 maggiore resistenza ai guasti.%inserire immagine di esempio applicazione OTV.
 
-\textit{\underline{immagine esempio applicazione OTV}}
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.2]{img/otv_real_use.png}
+        \caption{Esempio di installazione di un dispositivo embedded basato sull'elaborazione ottica}
+    \end{center}
+\end{figure}
 
 È proprio questo un caso di utilizzo di \textbf{OTV} (\textit{Optical Tracking Velocimetry}), una tecnica che fa uso di 
 particolari algoritmi di computer vision (in particolare l'algoritmo di Lucas-Kanade, utilizzato per la stima del flusso 
@@ -27,8 +32,16 @@ Il metodo OTV è pensato per essere applicato a dispositivi di elaborazione a ba
 sarebbero posizionati lungo corsi d'acqua in aree geografiche remote. I dati poi raccolti da questi dispositivi potranno essere
 spediti (tramite meccanismi semplici come l'invio di SMS) ad un sistema di raccolta dati centralizzato.
 Va da sé dunque che l'ottimizzazione dei consumi energetici dei dispositivi costituisca un punto cruciale per la 
-realizzabilità di un tale sistema di monitoraggio. Questo tema verrà preso in considerazione(?) e rappresenta uno dei punti
-principali degli studi finora condotti sull'argomento.\\
+realizzabilità di un tale sistema di monitoraggio. Questo tema verrà preso in considerazione e rappresenta uno dei punti
+principali degli studi finora condotti sull'argomento.
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.13]{img/sequenze_video_otv.png}
+        \caption{Sequenze video ottenute con OTV: le linee tracciate rappresentano le traiettorie riconosciute, colorazioni
+        più calde indicano velocità maggiori}
+    \end{center}
+\end{figure}
 
 L'algoritmo è stato inizialmente testato su dispositivi della famiglia \textit{Raspberry}, per via delle loro dimensioni molto
 contenute e in generale per le funzionalità da essi offerte, molto coerenti con i requisiti del progetto. Le analisi \cite{app11157027} 
@@ -37,10 +50,11 @@ hanno riportato ottimi risultati dal punto di vista dei consumi energetici in pa
 Altri dispositivi con buone potenzialità e con un profilo che si presti bene al contesto di utilizzo sono gli \textbf{smartphone},
 con particolare riferimento a quelli basati su sistema operativo \textbf{Android}. L'utilizzo di tali dispositivi richiede ovviamente
 una seppur minima quantità di modifiche rispetto al deployment effettuato su Raspberry, ed è proprio questo il tema centrale
-del seguente documento.\\
+del seguente documento.
+
 Nei prossimi capitoli si procede quindi --- dopo aver introdotto qualche informazione necessaria su OTV --- a descrivere 
 la realizzazione di un'applicazione per smartphone Android che adatti l'implementazione in C++ di OTV (disponibile su GitHub)
-e i risultati in termini di prestazioni (e consumi energetici?) che ne sono conseguiti.
+e i risultati in termini di prestazioni e consumi energetici che ne sono conseguiti.
 
 
 

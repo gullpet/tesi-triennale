@@ -149,24 +149,32 @@ tensioni e correnti costanti lungo tale periodo.
 \section{Analisi dei risultati}
 
 Al termine del progetto ha avuto luogo la fase di analisi dei risultati, sia dal punto di vista delle prestazioni che dei 
-consumi.
+consumi. Tutti i test sono stati eseguiti sullo stesso campione video della durata di 20 secondi. La maggior parte dei test
+è stata eseguita con fotogrammi ad \textit{Half Resolution} in quanto, alla luce dei risultati ottenuti in \cite{app11157027},
+questa configurazione si è dimostrata il migliore compromesso tra affidabilità dei risultati e velocità di esecuzione. Per lo
+stesso motivo, nessun test è stato svolto con una configurazione a \textit{Quarter Resolution}.
+
+L'ottimizzazione relativa all'utilizzo della GPU è stata esclusa dai test poiché, dopo alcuni tentativi, è stato impossibile
+abilitarla correttamente: analizzando i log del sistema Android, si riscontrano errori di permessi e di letture relativi alla
+GPU del dispositivo, probabilmente dovuti ad un mancato supporto di OpenCL.
 
 Si riportano di seguito i dati ottenuti in termini di tempo di esecuzione, evidenziando le differenze tra le varie configurazioni.
+I tempi riportati corrispondono al valore medio del tempo di esecuzione osservato tra tutti i test svolti, la varianza è 
+risultata tale da essere trascurabile.
 
-\ldots
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.5]{img/execution_time.png}
+        \caption{Tempo di esecuzione in secondi (\textbf{Half Resolution})}
+    \end{center}
+\end{figure}
 
-Come si può notare, l'elaborazione in scala di grigi influisce notevolmente sulle prestazioni, dimezzando i tempi nella quasi
-totalità dei casi. Sorprendentemente, l'abilitazione di opzioni quali l'uso della GPU con OpenCL e di istruzioni SIMD NEON non
-ha influito in alcun modo sull'esecuzione. 
+Come si può notare, l'elaborazione in scala di grigi influisce notevolmente sulle prestazioni, riducendo almeno del 50\% i tempi
+in tutti i test svolti. Sorprendentemente, l'abilitazione di istruzioni SIMD NEON non ha influito in alcun modo 
+sull'esecuzione, risultando anzi in un lieve peggioramento delle prestazioni (pochi decimi di secondo). Il motivo di ciò non è
+ben chiaro e potrebbe essere riconducibile a diverse cause, ad esempio un banale errore di configurazione.
 
-Con molta probabilità, poichè i tempi di esecuzione con e senza tali ottimizzazioni
-sono assolutamente inalterati, ciò è dovuto al mancato utilizzo di GPU e istruzioni SIMD o all'utilizzo forzato di queste.
-Il motivo più plausibile è che OpenCL non sia completamente supportato dal dispositivo Android in questione. Per quanto riguarda
-NEON, è possibile che questo venga utilizzato indipendentemente dalla configurazione scelta.
-
-\ldots
-
-Nel testare i consumi energetici sono state abilitate tutte le possibili ottimizzazioni software fornite dal sistema Android:
-disabilitazione di connessione dati, Wi-Fi, Bluetooth e attivazione della \textbf{modalità risparmio energetico}, avendo cura di
-mantenere attive le funzionalità basilari necessarie alla comunicazione (es. SMS). Nessuna di queste ottimizzazioni ha 
-influito negativamente sulle prestazioni dell'applicazione.
+Nel testare invece i consumi energetici sono state abilitate tutte le possibili ottimizzazioni software fornite dal sistema 
+Android: disabilitazione di connessione dati, Wi-Fi, Bluetooth e attivazione della \textbf{modalità risparmio energetico}, 
+avendo cura di mantenere attive le funzionalità basilari necessarie alla comunicazione (es. SMS). Nessuna di queste 
+ottimizzazioni ha influito negativamente sulle prestazioni dell'applicazione.
