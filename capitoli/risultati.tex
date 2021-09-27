@@ -90,7 +90,7 @@ la procedura guidata è disponibile in \cite{adev_batlog}.
 
 \begin{figure}[h!]
     \begin{center}
-        \includegraphics[scale=0.38]{img/battery_historian_coulomb.png}
+        \includegraphics[scale=0.28]{img/battery_historian_coulomb.jpg}
         \caption{Andamento nel tempo del livello di carica della batteria in $mAh$}
     \end{center}
 \end{figure}
@@ -101,7 +101,7 @@ ottenere informazioni aggiuntive particolarmente utili.
 
 \begin{figure}[h!]
     \begin{center}
-        \includegraphics[scale=0.5]{img/battery_historian_hover.png}
+        \includegraphics[scale=0.35]{img/battery_historian_hover.jpg}
         \caption{Informazioni dettagliate relative ad uno specifico intervallo di tempo}
     \end{center}
 \end{figure}
@@ -135,8 +135,6 @@ Supponendo quindi di approssimare la tensione ad un valore $V$ e di avere a disp
 corrente durante l'esecuzione di OTV, è possibile calcolare l'energia consumata basandosi sulla potenza media dissipata come segue:
 
 \begin{equation*}
-    %E = P \cdot \Delta t = \sum_{t_i = t_1}^{t_N} V_{t_{i-1}, t_i} \cdot I_{t_{i-1}, t_i} \cdot (t_i - t_{i-1})
-   %\\
     E = P \cdot \Delta t = \sum_{i = 1}^{N}~V I_i \cdot \Delta t_i
 \end{equation*}
 
