@@ -2,3 +2,19 @@
 \label{cap:conclusioni}
 \addcontentsline{toc}{chapter}{\nameref{cap:conclusioni}}
 
+Il porting di OTV su sistema Android ha prodotto risultati decisamente promettenti, evidenziando performance e consumi
+energetici anche parzialmente migliori rispetto a quanto ottenuto su Raspberry Pi.
+
+Per fornire una valutazione completa e confrontare sotto ogni aspetto le due soluzioni, è necessario condurre un'analisi
+più approfondita sui consumi energetici, specie considerando il ciclo di esecuzione completo di OTV che prevede le fasi
+aggiuntive di acquisizione, estrazione ed infine di idle.\\
+In particolare, la fase di idle risulta particolarmente critica nei sistemi Android, poiché essi --- al contrario dei Raspberry
+--- non dispongono di una modalità di stand-by ma devono fare affidamento alle varie modalità di sistema meno sospensive quali 
+il blocco dello schermo.
+
+Qualora si decidesse di approfondire il presente lavoro, il primo passo sarebbe quindi quello di 
+completare l'applicazione inserendo componenti dedicate all'estrazione, acquisizione, e soprattutto un'implementazione ad hoc
+della fase di idle.
+
+L'utilizzo di dispositivi Android nell'ambito di applicazione discusso potrebbe --- se confermato da ulteriori analisi ---
+portare a prestazioni migliori, a fronte di costi comunque piuttosto contenuti e una configurazione molto semplificata.

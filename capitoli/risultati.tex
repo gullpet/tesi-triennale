@@ -10,14 +10,12 @@ del dispositivo, a seconda delle caratteristiche tecniche di quest'ultimo.
 
 Per quanto riguarda il seguente progetto, i test sono stati svolti su un dispositivo Android basato sul 
 SoC \textit{Qualcomm Snapdragon 730} (sul quale è presente una CPU octa-core).\\
-Sono quindi prevedibili risultati 
-migliori (perlomeno in termini di prestazioni) rispetto a dispositivi aventi caratteristiche tecniche inferiori.
 
 \section{Testing}
 
-Ai fini del testing sono stati utilizzati fotogrammi precedentemente estratti poiché riprodurre l'intero processo
-di acquisizione ed estrazione andrebbe oltre gli scopi limitati del seguente lavoro e aggiungerebbe notevole complessità 
-al progetto, costringendo a fare i conti con diversi problemi (ad esempio, la mancanza di \textit{ffmpeg} su Android).
+Ai fini del testing sono stati utilizzati fotogrammi precedentemente estratti: riprodurre l'intero ciclo di esecuzione OTV
+su Android, comprese le fasi di acquisizione ed estrazione introdurrebbe diverse complessità, costringendo a fare i conti con 
+diversi problemi (ad esempio, la mancanza di \textit{ffmpeg} su Android).
 Difatti, nel testare l'applicazione si è considerata esclusivamente la fase di esecuzione, tralasciando le altre tre fasi
 presentate in \autoref{sec:ciclo} principalmente per motivi di tempo. L'esecuzione di OTV rappresenta comunque la fase più
 importante e con il maggior numero di variabili che possano influenzare le prestazioni e i consumi: le analisi che ne
@@ -72,6 +70,7 @@ Il processo di testing è avvenuto seguendo un'iterazione di questo tipo:
 I risultati così ottenuti sono poi stati sottoposti ad un'analisi finale per stabilire i vantaggi di ciascuna configurazione. 
 
 \section{Stima dei consumi energetici}
+\label{sec:stimaconsumi}
 
 Data l'influenza che i consumi energetici hanno sulla realizzabilità e sulla valutazione di un dispositivo embedded di questo
 tipo, si è deciso di svolgere --- anche se non approfonditamente --- una stima dell'energia consumata da esso.
@@ -98,7 +97,7 @@ la procedura guidata è disponibile in \cite{adev_batlog}.
 
 L'immagine di cui sopra rappresenta uno dei grafici ottenibili con Battery Historian di maggiore interesse al fine di
 determinare il consumo energetico: l'andamento del livello di carica. Passando il cursore lungo il grafico è possibile
-ottenere informazioni aggiuntive particolarmente utili:
+ottenere informazioni aggiuntive particolarmente utili.
 
 \begin{figure}[h!]
     \begin{center}
@@ -164,17 +163,45 @@ risultata tale da essere trascurabile.
 
 \begin{figure}[h!]
     \begin{center}
-        \includegraphics[scale=0.5]{img/execution_time.png}
-        \caption{Tempo di esecuzione in secondi (\textbf{Half Resolution})}
+        \includegraphics[scale=0.45]{img/execution_time.png}
+        \caption{Tempo di esecuzione [s] (\textbf{Half Resolution})}
+        \label{fig:execution_time}
     \end{center}
 \end{figure}
 
-Come si può notare, l'elaborazione in scala di grigi influisce notevolmente sulle prestazioni, riducendo almeno del 50\% i tempi
+Come si può notare in \autoref{fig:execution_time}, l'elaborazione in scala di grigi influisce notevolmente sulle prestazioni, riducendo almeno del 50\% i tempi
 in tutti i test svolti. Sorprendentemente, l'abilitazione di istruzioni SIMD NEON non ha influito in alcun modo 
 sull'esecuzione, risultando anzi in un lieve peggioramento delle prestazioni (pochi decimi di secondo). Il motivo di ciò non è
 ben chiaro e potrebbe essere riconducibile a diverse cause, ad esempio un banale errore di configurazione.
 
+\newpage
+
 Nel testare invece i consumi energetici sono state abilitate tutte le possibili ottimizzazioni software fornite dal sistema 
-Android: disabilitazione di connessione dati, Wi-Fi, Bluetooth e attivazione della \textbf{modalità risparmio energetico}, 
-avendo cura di mantenere attive le funzionalità basilari necessarie alla comunicazione (es. SMS). Nessuna di queste 
+Android: disabilitazione di connessione dati, Wi-Fi, Bluetooth, attivazione della \textbf{modalità risparmio energetico} e
+luminosità dello schermo impostata al minimo, avendo cura di mantenere attive le funzionalità basilari necessarie alla comunicazione (es. SMS). Nessuna di queste 
 ottimizzazioni ha influito negativamente sulle prestazioni dell'applicazione.
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.45]{img/power.png}
+        \caption{Potenza dissipata [W] (\textbf{Half Resolution})}
+        \label{fig:power}
+    \end{center}
+\end{figure}
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.45]{img/energy.png}
+        \caption{Energia consumata [J] (\textbf{Half Resolution})}
+    \end{center}
+\end{figure}
+
+Contrariamente a quanto riscontrato con i test su Raspberry Pi, la configurazione che pare garantire il minor consumo di energia
+sembra essere quella che fa uso del minor numero di ottimizzazioni hardware. Si ricorda che i grafici di potenza ed energia
+qui riportati sono una stima dei consumi energetici ottenuti con il metodo descritto in \autoref{sec:stimaconsumi}, 
+il consumo reale potrebbe discostarsi da quello stimato.\\
+Risultano in effetti insoliti i picchi di potenza in \autoref{fig:power} registrati con configurazioni \textit{Multicore} in elaborazioni monocromatiche.
+
+Confrontando queste stime con i consumi dei dispositivi Raspberry Pi riportati in \cite{app11157027}, si nota un netto miglioramento
+dei consumi energetici stimati. Questa analisi va comunque corredata da considerazioni più complete circa il ciclo di esecuzione
+dell'applicazione Android finale.

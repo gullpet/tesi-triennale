@@ -2,7 +2,7 @@
 \section{Contesto di utilizzo}
 
 Come già brevemente descritto, OTV prevede un deployment su dispositivi di dimensioni ridotte e autosufficienti dal punto di
-vista energetico. In particolare, la configurazione testata su Raspberry introduceva i seguenti componenti \cite{app11157027}:
+vista energetico. In particolare, la configurazione testata su Raspberry \cite{app11157027} introduceva i seguenti componenti:
 \begin{itemize}
     \item Raspberry Pi 3B/4 per l'elaborazione
     \item Panello solare 6 W (PiJuice Solar Panel) per sostenere i consumi energetici
@@ -11,7 +11,12 @@ vista energetico. In particolare, la configurazione testata su Raspberry introdu
  Una simile configurazione verrebbe usata con smartphone, salvo ovviamente l'utilizzo di una batteria 
 aggiuntiva.
 
-\underline{\emph{*Immagine applicazione OTV 2*}}
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.15]{img/pijuice.png}
+        \caption{Esempio di deployment del dispositivo su Raspberry Pi}
+    \end{center}
+\end{figure}
 
 \section{Ciclo di funzionamento}
 \label{sec:ciclo}
@@ -90,7 +95,13 @@ parallelizzazione:
     \item Esecuzione su \textbf{GPU} mediante la libreria \textbf{OpenCL}
 \end{itemize}
 
-\underline{\emph{*Immagine confronto tra varie ottimizzazioni nel paper 3*}}
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[scale=0.1]{img/ottimizzazioni.png}
+        \caption{Confronto tra le varie ottimizzazioni hardware: Baseline (in alto a sinistra), Multicore (in basso a sinistra),
+        SIMD (in alto a destra), SIMD Multicore (in basso a destra)}
+    \end{center}
+\end{figure}
 
 \subsubsection{OpenMP e TBB}
 
