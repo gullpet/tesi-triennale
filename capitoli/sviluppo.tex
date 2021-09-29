@@ -79,9 +79,9 @@ verranno poi usati dal build system per effettivamente compilare il progetto. In
 utilizzare \textbf{Make}, la scelta fra i due non comporta nessuna differenza nel risultato ma può influire leggermente 
 sui tempi di compilazione.
 
-Tra le diverse opzioni di CMake si nota intanto \texttt{ANDROID\_ABI}, che specifica l'ABI per il quale compilare il
-progetto. Un ABI (\textit{Application Binary Interface}) rappresenta sostanzialmente l'insieme di set di istruzioni
-supportate da un dispositivo, come spiegato in \cite{adev_abi}. 
+Tra le diverse opzioni di CMake si nota intanto \texttt{ANDROID\_ABI}, che specifica l'ABI per il quale compilare OpenCV. 
+Un ABI (\textit{Application Binary Interface}) rappresenta, tra le altre cose, l'insieme di set di istruzioni
+supportati da un dispositivo, come spiegato in \cite{adev_abi}. 
 Si limita la scelta ad \texttt{armeabi-v7a} e \texttt{arm64-v8a}, rispettivamente le ABI delle architetture ARM a 32 e 64 bit. 
 Architetture differenti da ARM non verrebbero comunque testate su Android.
 
@@ -146,10 +146,10 @@ Per facilitare questa operazione, viene di norma utilizzato un ambiente di svilu
 Nel caso di Android l'IDE consigliato è Android Studio, che fornisce un bundle di installazione contenente tutti gli strumenti
 e le toolchain necessarie, facilmente configurabili.
 
-Il linguaggio principale supportato da Android è \textbf{Java}: ogni applicazione richiede anche solo una minima parte scritta 
-in Java per poter utilizzare le API di sistema e gestire i cosiddetti \emph{Entry Point} dell'applicazione, ovvero i meccanismi 
-tramite i quali l'utente può avviare ed interagire con l'applicazione, l'interfaccia utente è infatti manipolabile esclusivamente
-con l'utilizzo di classi Java.
+Il linguaggio principale supportato da Android è \textbf{Java} (ultimamente anche Kotlin sta avendo largo impiego): 
+ogni applicazione richiede anche solo una minima parte scritta in Java o Kotlin per poter utilizzare le API di sistema e gestire i 
+cosiddetti \emph{Entry Point} dell'applicazione, ovvero i meccanismi tramite i quali l'utente può avviare ed interagire con 
+l'applicazione, l'interfaccia utente è infatti manipolabile esclusivamente con l'utilizzo di classi Java/Kotlin.
 
 È comunque disponibile il supporto per codice nativo C/C++ grazie all'NDK (\emph{Native Development Kit}): un insieme di strumenti
 per la compilazione e il debug integrabili con Android Studio. Lo strumento di configurazione di default per codice nativo è 
